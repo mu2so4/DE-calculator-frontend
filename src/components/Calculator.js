@@ -4,9 +4,24 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { red, lightGreen } from '@mui/material/colors';
+
 
 
 export default function Calculator() {
+  const ac_theme = createTheme({
+    palette: {
+      primary: red
+    },
+  })
+
+  const evaluate_button_theme = createTheme({
+    palette: {
+      primary: lightGreen
+    },
+  })
+  
   const[expression,setExpression]=useState('');
   const[exprResult,setExprResult]=useState('');
   const appendExpression=(str) => {
@@ -21,9 +36,15 @@ export default function Calculator() {
     }
     else if(value === AC_ACTION) {
       setExpression('')
+      setExprResult('')
     }
     else {
-      appendExpression(' ' + value + ' ')
+      if(expression.length === 0 || expression.charAt(expression.length - 1) === ' ') {
+        appendExpression(value + ' ')
+      }
+      else {
+        appendExpression(' ' + value + ' ')
+      }
     }
   }
 
@@ -42,7 +63,7 @@ export default function Calculator() {
       if(response.status === 200){
         console.log("SUCCESS")
         return response.json();     
-      }else if(response.status === 408){
+      }else if(response.status >= 400){
         console.log("SOMETHING WENT WRONG")
         this.setState({ requestFailed: true })
     }})
@@ -56,12 +77,10 @@ export default function Calculator() {
 
   return (
     <Box
-      //component="form"
       sx={{
         '& > :not(style)': { m: 1, width: '40ch' },
       }}
-      //noValidate
-      //autoComplete="off"
+      justifyContent="center"
     >
 
       <form noValidate autoComplete="off">
@@ -72,7 +91,9 @@ export default function Calculator() {
         <Button id="leftBracketButton" variant="outlined" onClick={() => handleClick('(')}>(</Button>
         <Button id="rightBracketButton" variant="outlined" onClick={() => handleClick(')')}>)</Button>
         <Button id="digit7Button" variant="outlined" onClick={() => handleClick('*')}>^</Button>
-        <Button id="pointButton" variant="outlined" onClick={() => handleClick(AC_ACTION)}>AC</Button>
+        <ThemeProvider theme={ac_theme}>
+          <Button id="pointButton" variant="contained" onClick={() => handleClick(AC_ACTION)}>AC</Button>
+        </ThemeProvider>
       </Box>
       
       <Box>
@@ -99,16 +120,15 @@ export default function Calculator() {
       <Box>
         <Button id="digit0Button" variant="contained" onClick={() => handleClick(0)}>0</Button>
         <Button id="pointButton" variant="outlined" onClick={() => handleClick('.')}>.</Button>
-        <Button id="evaluateButton" variant="contained" onClick={handleSubmit}>=</Button>
+        <ThemeProvider theme={evaluate_button_theme}>
+          <Button id="evaluateButton" variant="contained" onClick={handleSubmit}>=</Button>
+        </ThemeProvider>
         <Button id="pointButton" variant="outlined" onClick={() => handleClick('+')}>+</Button>
       </Box>
 
-      
-      
-      
-      
-
-      <TextField id="resultField" variant="outlined" value={exprResult} />
+      <Box>
+        <TextField id="resultField" variant="outlined" label="Result" value={exprResult} />
+      </Box>
     </Box>
   );
 }
