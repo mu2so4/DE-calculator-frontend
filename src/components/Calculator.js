@@ -55,7 +55,8 @@ export default function Calculator() {
     fetch("http://localhost:8080/evaluate", {
       method:"POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Accept": "application/json"
       },
       body: JSON.stringify(expr)
     })
@@ -68,7 +69,14 @@ export default function Calculator() {
         this.setState({ requestFailed: true })
     }})
     .then((data) => {
-      setExprResult(JSON.parse(JSON.parse(data.result)))
+      const status = data.status
+      const result = JSON.parse(data.value)
+      if(status === "ok") {
+        setExprResult(result)
+      }
+      else {
+        setExprResult(status)
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -90,7 +98,7 @@ export default function Calculator() {
       <Box>
         <Button id="leftBracketButton" variant="outlined" onClick={() => handleClick('(')}>(</Button>
         <Button id="rightBracketButton" variant="outlined" onClick={() => handleClick(')')}>)</Button>
-        <Button id="digit7Button" variant="outlined" onClick={() => handleClick('*')}>^</Button>
+        <Button id="digit7Button" variant="outlined" onClick={() => handleClick('^')}>^</Button>
         <ThemeProvider theme={ac_theme}>
           <Button id="pointButton" variant="contained" onClick={() => handleClick(AC_ACTION)}>AC</Button>
         </ThemeProvider>
